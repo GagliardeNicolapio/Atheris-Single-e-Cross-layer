@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.impute import KNNImputer
+from sklearn.preprocessing import LabelEncoder
 
 
 # stampa nomaColonna->numValMancanti
@@ -60,6 +62,8 @@ def plot_corr_matrix(df):
 if __name__ == "__main__":
     df = pd.read_csv('./dataset/dataset.csv')
 
+    df.pop('URL')
+
     plot_corr_matrix(df)
 
     # DATA CLEANING
@@ -69,9 +73,8 @@ if __name__ == "__main__":
     # sostituisco i none con 'us' in WHOIS_COUNTRY
     df["WHOIS_COUNTRY"] = df["WHOIS_COUNTRY"].replace(['none'], df['WHOIS_COUNTRY'].value_counts().index.tolist()[0])
 
-    #Sostituisce i country code con il nome esteso
+    # Sostituisce i country code con il nome esteso
     replace_states_cc(df)
-
 
     most_freq_states_none_replace = {"no": "rogaland", "lu": "luxembourg", "jp": "osaka", "il": "israel",
                                      "ph": "manila",
@@ -81,8 +84,7 @@ if __name__ == "__main__":
                                      "kr": "korea", "gb": "london", "uk": "united kingdom", "fr": "paris",
                                      "au": "queensland", "cy": "cyprus", "us": "california"}
 
-
-    #sostituisco i none in WHOIS_STATEPRO con i states più frequenti
+    # sostituisco i none in WHOIS_STATEPRO con i states più frequenti
     dict_index_state = {}
     for index, row in df.iterrows():
         if (row["WHOIS_COUNTRY"] != "none") & (row["WHOIS_STATEPRO"] == "none"):
@@ -91,5 +93,24 @@ if __name__ == "__main__":
     new_column = pd.Series(dict_index_state.values(), name='WHOIS_STATEPRO', index=dict_index_state.keys())
     df.update(new_column)
 
-    print_groupby_sort("prova",df)
+    print_groupby_sort("prova", df)
     missing_values(df)
+
+    print(df.info())
+    print(df.select_dtypes(include='object').columns)
+
+    label_encoder = LabelEncoder()
+    df["WHOIS_REDATE"] = df["WHOIS_REGDATE"].replace('None', np.nan, inplace=True)
+    print(df["WHOIS_REGDATE"])
+
+    for col in df.select_dtypes(include='object').columns:
+        df[col] = label_encoder.fit_transform(df[col])
+
+    np.savetxt("pippo.txt", df['WHOIS_REGDATE'].values)
+    np.savetxt("pippo2.txt", df['WHOIS_UPDATED_DATE'].values)
+
+    # prima fare la feature scaling
+    # imputer = KNNImputer(missing_values='none')
+    # imputed_df = pd.DataFrame(imputer.fit_transform(df), df.columns.values)
+
+    # missing_values(imputed_df)
