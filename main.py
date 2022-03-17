@@ -62,15 +62,14 @@ def plot_corr_matrix(df):
 if __name__ == "__main__":
     df = pd.read_csv('./dataset/dataset.csv')
 
+    # Elimino la colonna URL
     df.pop('URL')
 
-    plot_corr_matrix(df)
-
-    # DATA CLEANING
     # lowercasing di WHOIS_STATEPRO e WHOIS_COUNTRY
     df["WHOIS_STATEPRO"] = df["WHOIS_STATEPRO"].astype('str').str.lower()
     df["WHOIS_COUNTRY"] = df["WHOIS_COUNTRY"].astype('str').str.lower()
-    # sostituisco i none con 'us' in WHOIS_COUNTRY
+
+    # sostituisco i none con 'us' (valore piu frequente) in WHOIS_COUNTRY
     df["WHOIS_COUNTRY"] = df["WHOIS_COUNTRY"].replace(['none'], df['WHOIS_COUNTRY'].value_counts().index.tolist()[0])
 
     # Sostituisce i country code con il nome esteso
@@ -93,24 +92,32 @@ if __name__ == "__main__":
     new_column = pd.Series(dict_index_state.values(), name='WHOIS_STATEPRO', index=dict_index_state.keys())
     df.update(new_column)
 
-    print_groupby_sort("prova", df)
     missing_values(df)
 
-    print(df.info())
-    print(df.select_dtypes(include='object').columns)
+    # Sostituisco i none con NaN nelle colonne cha hanno ancora campi vuoti
+    df["WHOIS_REGDATE"].replace('None', np.nan, inplace=True)
+    df["WHOIS_UPDATED_DATE"].replace('None', np.nan, inplace=True)
+    df["CHARSET"].replace('None', np.nan, inplace=True)
+    df["SERVER"].replace('None', np.nan, inplace=True)
 
-    label_encoder = LabelEncoder()
-    df["WHOIS_REDATE"] = df["WHOIS_REGDATE"].replace('None', np.nan, inplace=True)
-    print(df["WHOIS_REGDATE"])
-
+    # Applico il LabelEncoder solo alle colonne string conservando i NaN
+    list_col_str = []
     for col in df.select_dtypes(include='object').columns:
-        df[col] = label_encoder.fit_transform(df[col])
+        list_col_str.append(col)
+    df[list_col_str] = df[list_col_str].apply(lambda series: pd.Series(
+        LabelEncoder().fit_transform(series[series.notnull()]),
+        index=series[series.notnull()].index
+    ))
 
-    np.savetxt("pippo.txt", df['WHOIS_REGDATE'].values)
-    np.savetxt("pippo2.txt", df['WHOIS_UPDATED_DATE'].values)
+    for col in df.columns:
+        print(df[col].head())
+
 
     # prima fare la feature scaling
-    # imputer = KNNImputer(missing_values='none')
-    # imputed_df = pd.DataFrame(imputer.fit_transform(df), df.columns.values)
 
-    # missing_values(imputed_df)
+    imputer = KNNImputer(missing_values=np.nan)
+    imputed_df = pd.DataFrame(imputer.fit_transform(df))
+
+    print(imputed_df[5].head())
+    #sembra funzionare tutto
+# missing_values(imputed_df)
