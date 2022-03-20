@@ -3,10 +3,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.impute import KNNImputer
+from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import train_test_split, cross_val_predict
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import MinMaxScaler
 from imblearn.over_sampling import SMOTE
 from sklearn import tree
+
 
 # stampa nomaColonna->numValMancanti
 def missing_values(df):
@@ -134,15 +137,14 @@ if __name__ == "__main__":
     smote = SMOTE()
     X, y = smote.fit_resample(df[df.columns.values.tolist()[:-1]], df['Type'])
     df = pd.DataFrame(X, columns=df.columns.values.tolist()[:-1])
-    # y = label (colonna type)
-    df['Type'] = y;
-    sns.countplot(x="Type", data=df)
-    plt.show()
+
+    #sns.countplot(x="Type", data=df)
+    #plt.show()
 
     #J48 data-aggregation
-    msk = np.random.rand(len(df)) < 0.8
-    train = df[msk]
-    test = df[~msk]
-    j48 = tree.DecisionTreeClassifier()
-    j48 = j48.fit(train[train.columns.values.tolist()[:-1]],train['Type'])
+    clf = tree.DecisionTreeClassifier()
+    y_pred = cross_val_predict(clf, X, y, cv=10)
+    conf_mat = confusion_matrix(y, y_pred)
+    print(conf_mat)
+
 
