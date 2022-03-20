@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.impute import KNNImputer
 from sklearn.preprocessing import LabelEncoder
-
+from sklearn.preprocessing import MinMaxScaler
+from imblearn.over_sampling import SMOTE
+from sklearn import tree
 
 # stampa nomaColonna->numValMancanti
 def missing_values(df):
@@ -12,6 +14,12 @@ def missing_values(df):
     for col in df.columns:
         print(f"{col}->{df[col].isin(['NA', 'None', 'none']).sum()}")
     print("\n\n")
+
+
+# stampa nomeColonna -> num valori nan
+def nan_values(df):
+    for col in df.columns:
+        print(f"{col}->{df[col].isna().sum()}")
 
 
 # Sostituisce i country code con il nome esteso
@@ -100,6 +108,10 @@ if __name__ == "__main__":
     df["CHARSET"].replace('None', np.nan, inplace=True)
     df["SERVER"].replace('None', np.nan, inplace=True)
 
+    # lowercasing di CHARSET e SERVER
+    df["CHARSET"] = df["CHARSET"].astype('str').str.lower()
+    df["SERVER"] = df["SERVER"].astype('str').str.lower()
+
     # Applico il LabelEncoder solo alle colonne string conservando i NaN
     list_col_str = []
     for col in df.select_dtypes(include='object').columns:
@@ -109,15 +121,28 @@ if __name__ == "__main__":
         index=series[series.notnull()].index
     ))
 
-    for col in df.columns:
-        print(df[col].head())
-
-
-    # prima fare la feature scaling
+    scaler = MinMaxScaler()
+    df = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
 
     imputer = KNNImputer(missing_values=np.nan)
-    imputed_df = pd.DataFrame(imputer.fit_transform(df))
+    df = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
 
-    print(imputed_df[5].head())
-    #sembra funzionare tutto
-# missing_values(imputed_df)
+    nan_values(df)
+
+    sns.countplot(x="Type", data=df)
+    plt.show()
+    smote = SMOTE()
+    X, y = smote.fit_resample(df[df.columns.values.tolist()[:-1]], df['Type'])
+    df = pd.DataFrame(X, columns=df.columns.values.tolist()[:-1])
+    # y = label (colonna type)
+    df['Type'] = y;
+    sns.countplot(x="Type", data=df)
+    plt.show()
+
+    #J48 data-aggregation
+    msk = np.random.rand(len(df)) < 0.8
+    train = df[msk]
+    test = df[~msk]
+    j48 = tree.DecisionTreeClassifier()
+    j48 = j48.fit(train[train.columns.values.tolist()[:-1]],train['Type'])
+
