@@ -8,7 +8,8 @@ from sklearn.model_selection import train_test_split, cross_val_predict
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import MinMaxScaler
 from imblearn.over_sampling import SMOTE
-from sklearn import tree
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.naive_bayes import GaussianNB
 
 
 # stampa nomaColonna->numValMancanti
@@ -68,6 +69,23 @@ def plot_corr_matrix(df):
     fig, ax = plt.subplots(figsize=(15, 15))  # Sample figsize in inches
     sns.heatmap(df.corr(), annot=True, linewidths=.5, ax=ax)
     plt.show()
+
+
+def print_metrics(confusion_matrix):
+    print(confusion_matrix)
+    tp = confusion_matrix[1][1]
+    fp = confusion_matrix[0][1]
+    fn = confusion_matrix[1][0]
+    tn = confusion_matrix[0][0]
+    print("True positive: ", tp)
+    print("False positive: ", fp)
+    print("False negative: ", fn)
+    print("True negative: ", tn)
+    print("Precision: ", tp / (tp + fp))
+    print("Accuracy: ", (tp + tn) / (tp + tn + fp + fn))
+    print("Recall: ", tp / (tp + fn))
+    print("False negative rate: ", fn / (tp + fn))
+    print("False positive rate: ", fp / (fp + tn))
 
 
 if __name__ == "__main__":
@@ -136,15 +154,22 @@ if __name__ == "__main__":
     plt.show()
     smote = SMOTE()
     X, y = smote.fit_resample(df[df.columns.values.tolist()[:-1]], df['Type'])
-    df = pd.DataFrame(X, columns=df.columns.values.tolist()[:-1])
+    #df = pd.DataFrame(X, columns=df.columns.values.tolist()[:-1])
 
-    #sns.countplot(x="Type", data=df)
-    #plt.show()
+    # sns.countplot(x="Type", data=df)
+    # plt.show()
 
-    #J48 data-aggregation
-    clf = tree.DecisionTreeClassifier()
-    y_pred = cross_val_predict(clf, X, y, cv=10)
-    conf_mat = confusion_matrix(y, y_pred)
-    print(conf_mat)
+    # J48 data-aggregation
+    print("j48 " + "-" * 60)
+    j48 = DecisionTreeClassifier()
+    j48_pred = cross_val_predict(j48, X, y, cv=10)
+    print_metrics(confusion_matrix(y, j48_pred))
 
+    # Naive Bayes data-aggregation
+    print("Naive Bayes " + "-" * 60)
+    nby = GaussianNB() # valori continui
+    nby_pred = cross_val_predict(nby, X, y, cv=10)
+    print_metrics(confusion_matrix(y, nby_pred))
 
+    # SVM data-aggregation
+    print("Naive Bayes " + "-" * 60)
