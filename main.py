@@ -4,13 +4,13 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.impute import KNNImputer
 from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import train_test_split, cross_val_predict
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import cross_val_predict
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 from imblearn.over_sampling import SMOTE
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
-
+from sklearn import svm
+from sklearn.linear_model import LogisticRegression
 
 # stampa nomaColonna->numValMancanti
 def missing_values(df):
@@ -172,4 +172,13 @@ if __name__ == "__main__":
     print_metrics(confusion_matrix(y, nby_pred))
 
     # SVM data-aggregation
-    print("Naive Bayes " + "-" * 60)
+    print("Support Vector Machine " + "-" * 60)
+    svm = svm.SVC()
+    svm_pred = cross_val_predict(svm, X, y, cv=10)
+    print_metrics(confusion_matrix(y, svm_pred))
+
+    # Logicistic data-aggregation
+    print("Logicistic " + "-" * 60)
+    lcs = LogisticRegression()
+    lcs_pred = cross_val_predict(lcs, X, y, cv=10)
+    print_metrics(confusion_matrix(y, lcs_pred))
