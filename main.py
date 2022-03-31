@@ -93,7 +93,7 @@ def aggregation(application_pred, network_pred, or_flag=True, and_flag=True):
     if len(application_pred) != len(network_pred):
         raise Exception("application length != network length")
 
-    if or_flag & and_flag: # entrambi
+    if or_flag & and_flag:  # entrambi
         aggregation_or = np.array([])
         for i in range(len(application_pred)):
             aggregation_or = np.append(aggregation_or, application_pred[i] or network_pred[i])
@@ -104,19 +104,33 @@ def aggregation(application_pred, network_pred, or_flag=True, and_flag=True):
 
         return aggregation_or, aggregation_and
 
-    elif or_flag & (not and_flag): # solo or aggregation
+    elif or_flag & (not and_flag):  # solo or aggregation
         aggregation_or = np.array([])
         for i in range(len(application_pred)):
             aggregation_or = np.append(aggregation_or, application_pred[i] or network_pred[i])
 
         return aggregation_or
 
-    elif (not or_flag) &  and_flag: # solo and aggregation
+    elif (not or_flag) & and_flag:  # solo and aggregation
         aggregation_and = np.array([])
         for i in range(len(application_pred)):
             aggregation_and = np.append(aggregation_and, application_pred[i] or network_pred[i])
 
         return aggregation_and
+
+
+def print_dataframe_to_csv(file_name, features, target, columns):
+    file = open(file_name, "w")
+
+    for column in columns[:-1]:
+        file.write(column + ",")
+    file.write("Type\n")
+
+    for i in range(len(features.index)):
+        for column in columns[:-1]:
+            file.write(str(features._get_value(features.index[i], column))+",")
+        file.write(str(target._get_value(target.index[i]))+"\n")
+    file.close()
 
 
 if __name__ == "__main__":
@@ -189,6 +203,8 @@ if __name__ == "__main__":
 
     # sns.countplot(x="Type", data=df)
     # plt.show()
+
+    print_dataframe_to_csv("dataset.csv", X, y, df.columns.values)
 
     # J48 data-aggregation
     print("j48 data-aggregation " + "-" * 60)
