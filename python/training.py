@@ -7,7 +7,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn import svm
 from sklearn.linear_model import LogisticRegression
-from data_cleaning import get_dataframe
+from python.data_cleaning import get_dataframe
 
 
 def plot_corr_matrix(df):
@@ -65,7 +65,7 @@ def aggregation(application_pred, network_pred, or_flag=True, and_flag=True):
 
 if __name__ == "__main__":
 
-    df, X, y = get_dataframe("./dataset/dataset.csv")
+    df, X, y = get_dataframe("../dataset/dataset.csv")
 
     # J48 data-aggregation
     print("j48 data-aggregation " + "-" * 60)

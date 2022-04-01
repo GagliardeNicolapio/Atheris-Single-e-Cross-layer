@@ -83,7 +83,7 @@ def replace_none_statepro(df, most_freq_states_none_replace):
 
 
 def get_dataframe(path):
-    df = pd.read_csv('./dataset/dataset.csv')
+    df = pd.read_csv('../dataset/dataset.csv')
 
     # Elimino la colonna URL
     df.pop('URL')
@@ -140,6 +140,6 @@ def get_dataframe(path):
     nan_values(df)
     missing_values(df)
 
-    print_dataframe_to_csv("dataset.csv", X, y, df.columns.values)
+    print_dataframe_to_csv("../dataset.csv", X, y, df.columns.values)
 
     return df, X, y
