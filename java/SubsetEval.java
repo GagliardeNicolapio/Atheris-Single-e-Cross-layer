@@ -1,12 +1,14 @@
+import weka.core.Attribute;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.AttributeSelection;
 import weka.attributeSelection.BestFirst;
 import weka.attributeSelection.CfsSubsetEval;
 import weka.core.Instances;
 
+
 public class SubsetEval {
     public static void main(String[] args) throws Exception {
-        Instances instances = Utils.getInstances("./dataset/dataset.arff");
+        Instances instances = Utils.getInstances("./dataset/datasetDataCleaningScalingFinal.arff");
 
         AttributeSelection attributeSelection = new AttributeSelection();
         CfsSubsetEval cfsSubsetEval = new CfsSubsetEval();
@@ -17,6 +19,8 @@ public class SubsetEval {
         attributeSelection.setSearch(bestFirst);
 
         Instances instancesEval = Filter.useFilter(instances, attributeSelection);
+        Utils.printCSV("./dataset/datasetSubsetEval.csv",instancesEval);
+
         instancesEval.enumerateAttributes().asIterator().forEachRemaining(item->System.out.println(item));
     }
 }

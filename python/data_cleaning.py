@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 from imblearn.over_sampling import SMOTE
 from sklearn.impute import KNNImputer
+import arff, os
 
 
 # stampa nomaColonna->numValMancanti
@@ -71,6 +72,24 @@ def print_dataframe_to_csv(file_name, features, target, columns):
     file.close()
 
 
+def df_to_csv(file_name, df):
+    f = open(file_name, "w+")
+    f.write(df.to_csv(index=False))
+    f.flush()
+    f.close()
+
+def df_to_arff(df, file_name):
+    arff.dump('../dataset/'+file_name+'.arff',
+              df.values, relation=file_name, names=df.columns)
+
+    fin = open('../dataset/'+file_name+".arff", "rt")
+    fout = open('../dataset/'+file_name+"Final.arff", "wt")
+    for line in fin:
+        fout.write(line.replace('Type real', 'Type {0.0,1.0}'))
+    fin.close()
+    fout.close()
+    os.remove('../dataset/'+file_name+".arff")
+
 # sostituisco i none in WHOIS_STATEPRO con i states più frequenti
 def replace_none_statepro(df, most_freq_states_none_replace):
     dict_index_state = {}
@@ -82,8 +101,9 @@ def replace_none_statepro(df, most_freq_states_none_replace):
     df.update(new_column)
 
 
+# ritorna il dataframe dopo aver applicato data imputation e feature scaling
 def get_dataframe(path):
-    df = pd.read_csv('../dataset/dataset.csv')
+    df = pd.read_csv(path)
 
     # Elimino la colonna URL
     df.pop('URL')
@@ -134,12 +154,20 @@ def get_dataframe(path):
     imputer = KNNImputer(missing_values=np.nan)
     df = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
 
+    # smote = SMOTE()
+    # X, y = smote.fit_resample(df[df.columns.values.tolist()[:-1]], df['Type'])
+    # X, y = data_balancing(df)
+
+    #nan_values(df)
+    #missing_values(df)
+
+    # print_dataframe_to_csv("../dataset.csv", X, y, df.columns.values)
+
+    return df
+
+
+# SMOTE data balancing
+def data_balancing(df):
     smote = SMOTE()
     X, y = smote.fit_resample(df[df.columns.values.tolist()[:-1]], df['Type'])
-
-    nan_values(df)
-    missing_values(df)
-
-    print_dataframe_to_csv("../dataset.csv", X, y, df.columns.values)
-
-    return df, X, y
+    return X, y

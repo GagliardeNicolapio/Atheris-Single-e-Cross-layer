@@ -6,18 +6,22 @@ import weka.filters.Filter;
 
 public class InfoGain {
     public static void main(String[] args) throws Exception {
-        Instances instances = Utils.getInstances("./dataset/dataset.arff");
+        final int NUM_TO_SELECT = 7;
+
+        Instances instances = Utils.getInstances("./dataset/datasetDataCleaningScalingFinal.arff");
 
         AttributeSelection attributeSelection = new AttributeSelection();
         InfoGainAttributeEval eval = new InfoGainAttributeEval();
         Ranker ranker = new Ranker();
 
-        //ranker.setNumToSelect(4);
+        ranker.setNumToSelect(NUM_TO_SELECT);
         attributeSelection.setInputFormat(instances);
         attributeSelection.setEvaluator(eval);
         attributeSelection.setSearch(ranker);
 
         Instances instancesEval = Filter.useFilter(instances, attributeSelection);
+        Utils.printCSV("./dataset/infoGainDataset.csv",instancesEval);
+
         instancesEval.enumerateAttributes().asIterator().forEachRemaining(item->System.out.println(item));
     }
 }
