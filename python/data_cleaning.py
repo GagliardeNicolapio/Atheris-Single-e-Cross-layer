@@ -103,6 +103,16 @@ def replace_none_statepro(df, most_freq_states_none_replace):
     df.update(new_column)
 
 
+def label_encoder(df):
+    list_col_str = []
+    for col in df.select_dtypes(include='object').columns:
+        list_col_str.append(col)
+    df[list_col_str] = df[list_col_str].apply(lambda series: pd.Series(
+        LabelEncoder().fit_transform(series[series.notnull()]),
+        index=series[series.notnull()].index
+    ))
+
+
 # ritorna il dataframe dopo aver applicato data imputation e feature scaling
 def get_dataframe(path):
     df = pd.read_csv(path)
@@ -141,14 +151,7 @@ def get_dataframe(path):
     df["CHARSET"] = df["CHARSET"].astype('str').str.lower()
     df["SERVER"] = df["SERVER"].astype('str').str.lower()
 
-    # Applico il LabelEncoder solo alle colonne string conservando i NaN
-    list_col_str = []
-    for col in df.select_dtypes(include='object').columns:
-        list_col_str.append(col)
-    df[list_col_str] = df[list_col_str].apply(lambda series: pd.Series(
-        LabelEncoder().fit_transform(series[series.notnull()]),
-        index=series[series.notnull()].index
-    ))
+    label_encoder(df)
 
     scaler = MinMaxScaler()
     df = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
