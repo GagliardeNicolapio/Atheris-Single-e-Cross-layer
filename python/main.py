@@ -3,8 +3,12 @@ from training import train_model_data_aggregation, train_model_and_or_aggregatio
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn import svm
+from sklearn.impute import KNNImputer
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
 import pandas as pd
+import numpy as np
 
 
 def without_feature_selection():
@@ -81,7 +85,21 @@ def info_gain_selection():
     train_model_and_or_aggregation("Logistic Regression", LogisticRegression(), application_df, network_df, y_info)
 
 
+def pca_selection():
+    df = pd.read_csv("../dataset/dataset.csv")
+    df = cleaning_dataframe(df, scaling=False, knn_imputer=False)
+
+    scaler = StandardScaler()
+    df = pd.DataFrame(scaler.fit_transform(df[df.columns.values.tolist()[:-1]]), columns=df.columns[:-1])
+
+    imputer = KNNImputer(missing_values=np.nan)
+    df = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
+
+    pca = PCA(n_components=7)
+    df = pca.fit_transform(df)
+
 if __name__ == "__main__":
-    without_feature_selection()
-    subset_eval_selection()
-    info_gain_selection()
+    pca_selection()
+    #without_feature_selection()
+    #subset_eval_selection()
+    #info_gain_selection()
