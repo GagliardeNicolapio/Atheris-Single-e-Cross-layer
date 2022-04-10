@@ -1,4 +1,4 @@
-from data_cleaning import get_dataframe, data_balancing, df_to_arff
+from data_cleaning import cleaning_dataframe, data_balancing, df_to_arff
 from training import train_model_data_aggregation, train_model_and_or_aggregation
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
@@ -10,7 +10,9 @@ import pandas as pd
 def without_feature_selection():
     print("WITHOUT FEATURE SELECTION\n\n\n\n")
 
-    df = get_dataframe("../dataset/dataset.csv")
+    df = pd.read_csv("../dataset/dataset.csv")
+
+    df = cleaning_dataframe(df)
 
     df_to_arff(df, "datasetDataCleaningScaling")
 

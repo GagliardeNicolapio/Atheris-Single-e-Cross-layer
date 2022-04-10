@@ -114,8 +114,7 @@ def label_encoder(df):
 
 
 # ritorna il dataframe dopo aver applicato data imputation e feature scaling
-def get_dataframe(path):
-    df = pd.read_csv(path)
+def cleaning_dataframe(df, scaling=True, knn_imputer=True, encoder=True):
 
     # Elimino la colonna URL
     df.pop('URL')
@@ -142,22 +141,26 @@ def get_dataframe(path):
     replace_none_statepro(df, most_freq_states_none_replace)
 
     # Sostituisco i none con NaN nelle colonne cha hanno ancora campi vuoti
-    df["WHOIS_REGDATE"].replace('None', np.nan, inplace=True)
-    df["WHOIS_UPDATED_DATE"].replace('None', np.nan, inplace=True)
-    df["CHARSET"].replace('None', np.nan, inplace=True)
-    df["SERVER"].replace('None', np.nan, inplace=True)
-
-    # lowercasing di CHARSET e SERVER
+    df["WHOIS_REGDATE"] = df["WHOIS_REGDATE"].astype('str').str.lower()
+    df["WHOIS_UPDATED_DATE"] = df["WHOIS_UPDATED_DATE"].astype('str').str.lower()
     df["CHARSET"] = df["CHARSET"].astype('str').str.lower()
     df["SERVER"] = df["SERVER"].astype('str').str.lower()
 
-    label_encoder(df)
+    df["WHOIS_REGDATE"].replace('none', np.nan, inplace=True)
+    df["WHOIS_UPDATED_DATE"].replace('none', np.nan, inplace=True)
+    df["CHARSET"].replace('none', np.nan, inplace=True)
+    df["SERVER"].replace('none', np.nan, inplace=True)
 
-    scaler = MinMaxScaler()
-    df = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
+    if encoder:
+        label_encoder(df)
 
-    imputer = KNNImputer(missing_values=np.nan)
-    df = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
+    if scaling:
+        scaler = MinMaxScaler()
+        df = pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
+
+    if knn_imputer:
+        imputer = KNNImputer(missing_values=np.nan)
+        df = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
 
     return df
 
