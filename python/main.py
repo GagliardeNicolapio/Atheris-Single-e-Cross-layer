@@ -1,4 +1,4 @@
-from data_cleaning import cleaning_dataframe, data_balancing, df_to_arff
+from data_cleaning import cleaning_dataframe, data_balancing, df_to_arff, nan_values
 from training import train_model_data_aggregation, train_model_and_or_aggregation
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
@@ -9,6 +9,8 @@ from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
 import pandas as pd
 import numpy as np
+from imblearn.over_sampling import SMOTE
+
 
 
 def without_feature_selection():
@@ -86,17 +88,36 @@ def info_gain_selection():
 
 
 def pca_selection():
-    df = pd.read_csv("../dataset/dataset.csv")
-    df = cleaning_dataframe(df, scaling=False, knn_imputer=False)
+    df_pca = pd.read_csv("../dataset/dataset.csv")
+    df_pca = cleaning_dataframe(df_pca, scaling=False, knn_imputer=False)
 
     scaler = StandardScaler()
-    df = pd.DataFrame(scaler.fit_transform(df[df.columns.values.tolist()[:-1]]), columns=df.columns[:-1])
+    df_pca = pd.DataFrame(scaler.fit_transform(df_pca),columns=df_pca.columns)
 
     imputer = KNNImputer(missing_values=np.nan)
-    df = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
+    df_pca = pd.DataFrame(imputer.fit_transform(df_pca), columns=df_pca.columns)
 
+    y = df_pca['Type'].astype('int')
     pca = PCA(n_components=7)
-    df = pca.fit_transform(df)
+    df_pca = pd.DataFrame(pca.fit_transform(df_pca[df_pca.columns.values.tolist()[:-1]]))
+
+
+    print(y.info())
+    print("********************")
+    print(df_pca.info())
+    print(df_pca.head())
+
+
+    smote = SMOTE()
+    X, y = smote.fit_resample(df_pca, y)
+    print(X.info())
+
+
+    # train_model_data_aggregation("J48", DecisionTreeClassifier(), X_pca, y_pca)
+    # train_model_data_aggregation("Naive Bayes", GaussianNB(), X_pca, y_pca)
+    # train_model_data_aggregation("Support Vector Machine", svm.SVC(), X_pca, y_pca)
+    # train_model_data_aggregation("Logistic Regression", LogisticRegression(), X_pca, y_pca)
+
 
 if __name__ == "__main__":
     pca_selection()
