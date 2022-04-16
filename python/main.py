@@ -12,7 +12,6 @@ import numpy as np
 from imblearn.over_sampling import SMOTE
 
 
-
 def without_feature_selection():
     print("WITHOUT FEATURE SELECTION\n\n\n\n")
 
@@ -26,7 +25,7 @@ def without_feature_selection():
 
     train_model_data_aggregation("J48", DecisionTreeClassifier(), X, y)
     train_model_data_aggregation("Naive Bayes", GaussianNB(), X, y)
-    train_model_data_aggregation("Support Vector Machine", svm.SVC(), X, y)
+    train_model_data_aggregation("Support Vector Machine", svm.SVC(kernel="poly"), X, y)
     train_model_data_aggregation("Logistic Regression", LogisticRegression(), X, y)
 
     # split dataset per OR, AND e XOR aggregation
@@ -39,7 +38,7 @@ def without_feature_selection():
 
     train_model_and_or_aggregation("J48", DecisionTreeClassifier(), application_df, network_df, y)
     train_model_and_or_aggregation("Naive Bayes", GaussianNB(), application_df, network_df, y)
-    train_model_and_or_aggregation("Support Vector Machine", svm.SVC(), application_df, network_df, y)
+    train_model_and_or_aggregation("Support Vector Machine", svm.SVC(kernel="poly"), application_df, network_df, y)
     train_model_and_or_aggregation("Logistic Regression", LogisticRegression(), application_df, network_df, y)
 
 
@@ -52,7 +51,7 @@ def subset_eval_selection():
 
     train_model_data_aggregation("J48", DecisionTreeClassifier(), X_eval, y_eval)
     train_model_data_aggregation("Naive Bayes", GaussianNB(), X_eval, y_eval)
-    train_model_data_aggregation("Support Vector Machine", svm.SVC(), X_eval, y_eval)
+    train_model_data_aggregation("Support Vector Machine", svm.SVC(kernel="poly"), X_eval, y_eval)
     train_model_data_aggregation("Logistic Regression", LogisticRegression(), X_eval, y_eval)
 
     application_df = X_eval[
@@ -61,7 +60,7 @@ def subset_eval_selection():
 
     train_model_and_or_aggregation("J48", DecisionTreeClassifier(), application_df, network_df, y_eval)
     train_model_and_or_aggregation("Naive Bayes", GaussianNB(), application_df, network_df, y_eval)
-    train_model_and_or_aggregation("Support Vector Machine", svm.SVC(), application_df, network_df, y_eval)
+    train_model_and_or_aggregation("Support Vector Machine", svm.SVC(kernel="poly"), application_df, network_df, y_eval)
     train_model_and_or_aggregation("Logistic Regression", LogisticRegression(), application_df, network_df, y_eval)
 
 
@@ -74,7 +73,7 @@ def info_gain_selection():
 
     train_model_data_aggregation("J48", DecisionTreeClassifier(), X_info, y_info)
     train_model_data_aggregation("Naive Bayes", GaussianNB(), X_info, y_info)
-    train_model_data_aggregation("Support Vector Machine", svm.SVC(), X_info, y_info)
+    train_model_data_aggregation("Support Vector Machine", svm.SVC(kernel="poly"), X_info, y_info)
     train_model_data_aggregation("Logistic Regression", LogisticRegression(), X_info, y_info)
 
     application_df = X_info[
@@ -83,7 +82,7 @@ def info_gain_selection():
 
     train_model_and_or_aggregation("J48", DecisionTreeClassifier(), application_df, network_df, y_info)
     train_model_and_or_aggregation("Naive Bayes", GaussianNB(), application_df, network_df, y_info)
-    train_model_and_or_aggregation("Support Vector Machine", svm.SVC(), application_df, network_df, y_info)
+    train_model_and_or_aggregation("Support Vector Machine", svm.SVC(kernel="poly"), application_df, network_df, y_info)
     train_model_and_or_aggregation("Logistic Regression", LogisticRegression(), application_df, network_df, y_info)
 
 
@@ -92,35 +91,45 @@ def pca_selection():
     df_pca = cleaning_dataframe(df_pca, scaling=False, knn_imputer=False)
 
     scaler = StandardScaler()
-    df_pca = pd.DataFrame(scaler.fit_transform(df_pca),columns=df_pca.columns)
+    df_pca = pd.DataFrame(scaler.fit_transform(df_pca), columns=df_pca.columns)
 
     imputer = KNNImputer(missing_values=np.nan)
     df_pca = pd.DataFrame(imputer.fit_transform(df_pca), columns=df_pca.columns)
 
+    df_pca_application = df_pca[
+        ['URL_LENGTH', 'NUMBER_SPECIAL_CHARACTERS', 'CHARSET', 'SERVER', 'CONTENT_LENGTH', 'WHOIS_COUNTRY',
+         'WHOIS_STATEPRO', 'WHOIS_REGDATE', 'WHOIS_UPDATED_DATE', 'DNS_QUERY_TIMES']]
+    df_pca_network = df_pca[
+        ['TCP_CONVERSATION_EXCHANGE', 'DIST_REMOTE_TCP_PORT', 'REMOTE_IPS', 'APP_BYTES', 'SOURCE_APP_PACKETS',
+         'REMOTE_APP_PACKETS', 'SOURCE_APP_BYTES', 'REMOTE_APP_BYTES', 'APP_PACKETS']]
+
     y = df_pca['Type'].astype('int')
-    pca = PCA(n_components=7)
-    df_pca = pd.DataFrame(pca.fit_transform(df_pca[df_pca.columns.values.tolist()[:-1]]))
 
+    pca_application = PCA(n_components=7)
+    df_pca_application = pd.DataFrame(pca_application.fit_transform(df_pca_application))
 
-    print(y.info())
-    print("********************")
-    print(df_pca.info())
-    print(df_pca.head())
-
+    pca_network = PCA(n_components=2)
+    df_pca_network = pd.DataFrame(pca_network.fit_transform(df_pca_network))
 
     smote = SMOTE()
-    X, y = smote.fit_resample(df_pca, y)
-    print(X.info())
+    X_pca, y_pca = smote.fit_resample(pd.concat([df_pca_application, df_pca_network], axis=1), y)
 
+    train_model_data_aggregation("J48", DecisionTreeClassifier(), X_pca, y_pca)
+    train_model_data_aggregation("Naive Bayes", GaussianNB(), X_pca, y_pca)
+    train_model_data_aggregation("Support Vector Machine", svm.SVC(kernel="poly"), X_pca, y_pca)
+    train_model_data_aggregation("Logistic Regression", LogisticRegression(), X_pca, y_pca)
 
-    # train_model_data_aggregation("J48", DecisionTreeClassifier(), X_pca, y_pca)
-    # train_model_data_aggregation("Naive Bayes", GaussianNB(), X_pca, y_pca)
-    # train_model_data_aggregation("Support Vector Machine", svm.SVC(), X_pca, y_pca)
-    # train_model_data_aggregation("Logistic Regression", LogisticRegression(), X_pca, y_pca)
+    X_pca_application = X_pca.iloc[:, :7]
+    X_pca_network = X_pca.iloc[:, -2:]
+
+    train_model_and_or_aggregation("J48", DecisionTreeClassifier(), X_pca_application, X_pca_network, y_pca)
+    train_model_and_or_aggregation("Naive Bayes", GaussianNB(), X_pca_application, X_pca_network, y_pca)
+    train_model_and_or_aggregation("Support Vector Machine", svm.SVC(kernel="poly"), X_pca_application, X_pca_network, y_pca)
+    train_model_and_or_aggregation("Logistic Regression", LogisticRegression(), X_pca_application, X_pca_network, y_pca)
 
 
 if __name__ == "__main__":
     pca_selection()
-    #without_feature_selection()
-    #subset_eval_selection()
-    #info_gain_selection()
+    # without_feature_selection()
+    # subset_eval_selection()
+    # info_gain_selection()
