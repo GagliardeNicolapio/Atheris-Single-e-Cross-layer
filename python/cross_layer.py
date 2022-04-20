@@ -87,6 +87,8 @@ def info_gain_selection():
 
 
 def pca_selection():
+    print("\n\n\n\n PCA \n\n\n\n")
+
     df_pca = pd.read_csv("../dataset/dataset.csv")
     df_pca = cleaning_dataframe(df_pca, scaling=False, knn_imputer=False)
 
@@ -129,7 +131,8 @@ def pca_selection():
 
 
 if __name__ == "__main__":
-    pca_selection()
-    # without_feature_selection()
-    # subset_eval_selection()
-    # info_gain_selection()
+    print("\n\n\n CROSS-LAYER \n\n\n")
+    #pca_selection()
+    #without_feature_selection()
+    #subset_eval_selection()
+    info_gain_selection()
