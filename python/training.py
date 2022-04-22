@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import cross_val_predict
-
+from sklearn.naive_bayes import GaussianNB
 
 def plot_corr_matrix(df):
     fig, ax = plt.subplots(figsize=(15, 15))  # Sample figsize in inches
@@ -72,3 +72,10 @@ def train_model_and_or_aggregation(name_classifier, classifier, application_df, 
     print_metrics(confusion_matrix(y, or_agg))
     print(name_classifier + "AND-aggregation" + "-" * 10)
     print_metrics(confusion_matrix(y, and_agg))
+
+
+def train_model_single_layer(name_classifier, classifier, X_network, X_application, y_network, y_application):
+    print("\n\n " + name_classifier + " NETWORK")
+    print_metrics(confusion_matrix(y_network, cross_val_predict(classifier, X_network, y_network, cv=10)))
+    print("\n\n" + name_classifier + " APPLICATION")
+    print_metrics(confusion_matrix(y_application, cross_val_predict(classifier, X_application, y_application, cv=10)))

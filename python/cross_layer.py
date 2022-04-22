@@ -1,4 +1,4 @@
-from data_cleaning import cleaning_dataframe, data_balancing, df_to_arff, nan_values
+from data_cleaning import cleaning_dataframe, data_balancing, df_to_arff
 from training import train_model_data_aggregation, train_model_and_or_aggregation
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB, MultinomialNB, ComplementNB
