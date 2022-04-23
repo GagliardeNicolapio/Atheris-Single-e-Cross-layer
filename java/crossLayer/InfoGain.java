@@ -1,3 +1,6 @@
+package crossLayer;
+
+import atherisUtils.Utils;
 import weka.filters.supervised.attribute.AttributeSelection;
 import weka.attributeSelection.InfoGainAttributeEval;
 import weka.attributeSelection.Ranker;
@@ -6,6 +9,7 @@ import weka.filters.Filter;
 
 public class InfoGain {
     public static void main(String[] args) throws Exception {
+        //crossLayer.InfoGain for cross-layer
         final int NUM_TO_SELECT = 7;
 
         Instances instances = Utils.getInstances("./dataset/datasetDataCleaningScalingFinal.arff");

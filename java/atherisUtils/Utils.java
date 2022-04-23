@@ -1,6 +1,10 @@
+package atherisUtils;
+
 import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Remove;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,7 +16,7 @@ public class Utils {
     public static Instances getInstances(String path) throws Exception {
         ConverterUtils.DataSource dataSource = new ConverterUtils.DataSource(path);
         Instances instances = dataSource.getDataSet();
-        System.out.println(instances.attribute(instances.numAttributes()-1));
+        //System.out.println(instances.attribute(instances.numAttributes()-1));
         instances.setClassIndex(instances.numAttributes()-1);
         return instances;
     }
@@ -37,5 +41,25 @@ public class Utils {
         columns+="Type";
         System.out.println(columns);
         return columns;
+    }
+
+    public static Instances networkFeatures(String path) throws Exception {
+        Instances instancesNetwork = Utils.getInstances(path);
+        Remove removeFilter = new Remove();
+        int[] networkFeatures = {9,10,11,12,13,14,15,16,17,19};
+        removeFilter.setAttributeIndicesArray(networkFeatures);
+        removeFilter.setInvertSelection(true);
+        removeFilter.setInputFormat(instancesNetwork);
+        return Filter.useFilter(instancesNetwork, removeFilter);
+    }
+
+    public static Instances applicationFeatures(String path) throws Exception {
+        Instances instancesApplication = Utils.getInstances(path);
+        Remove removeFilter = new Remove();
+        int[] applicationFeatures = {0,1,2,3,4,5,6,7,8,18,19};
+        removeFilter.setAttributeIndicesArray(applicationFeatures);
+        removeFilter.setInvertSelection(true);
+        removeFilter.setInputFormat(instancesApplication);
+        return Filter.useFilter(instancesApplication, removeFilter);
     }
 }
