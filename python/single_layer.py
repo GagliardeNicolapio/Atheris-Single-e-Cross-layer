@@ -1,28 +1,60 @@
 import pandas as pd
-from sklearn.decomposition import PCA
-from sklearn.impute import KNNImputer
-from data_cleaning import cleaning_dataframe
-import numpy as np
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import MinMaxScaler
 from imblearn.over_sampling import SMOTE
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.naive_bayes import GaussianNB, MultinomialNB, ComplementNB
-from training import train_model_single_layer
 from sklearn import svm
+from sklearn.decomposition import PCA
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB, MultinomialNB, ComplementNB
+from sklearn.tree import DecisionTreeClassifier
+from data_cleaning import cleaning_dataframe, data_balancing
+from training import train_model_single_layer
+
+
+def subset_eval_single_layer():
+    print("\n\n\n\n SUBSET EVAL \n\n\n\n")
+
+    df_sub_eval_application = pd.read_csv("../dataset/subsetEvalDatasetSingleLayerApplication.csv")
+    df_sub_eval_network = pd.read_csv("../dataset/subsetEvalDatasetSingleLayerNetwork.csv")
+
+    X_subset_application, y_subset_application = data_balancing(df_sub_eval_application)
+    X_subset_network, y_subset_network = data_balancing(df_sub_eval_network)
+
+    train_model_single_layer("GAUSSIAN NB", GaussianNB(), X_subset_network, X_subset_application, y_subset_network, y_subset_application)
+    train_model_single_layer("MULTINOMIAL NB", MultinomialNB(), X_subset_network, X_subset_application, y_subset_network, y_subset_application)
+    train_model_single_layer("COMPLEMENT NB", ComplementNB(), X_subset_network, X_subset_application, y_subset_network, y_subset_application)
+
+    train_model_single_layer("J48", DecisionTreeClassifier(), X_subset_network, X_subset_application, y_subset_network, y_subset_application)
+    train_model_single_layer("SVM", svm.SVC(), X_subset_network, X_subset_application, y_subset_network, y_subset_application)
+    train_model_single_layer("LOGISTIC REGRESSION", LogisticRegression(), X_subset_network, X_subset_application, y_subset_network, y_subset_application)
+
+def info_gain_single_layer():
+    print("\n\n\n\n INFO GAIN \n\n\n\n")
+
+    df_info_gain_application = pd.read_csv("../dataset/infoGainDatasetSingleLayerApplication.csv.csv")
+    df_info_gain_network = pd.read_csv("../dataset/infoGainDatasetSingleLayerNetwork.csv.csv")
+
+    X_info_gain_application, y_info_gain_application = data_balancing(df_info_gain_application)
+    X_info_gain_network, y_info_gain_network = data_balancing(df_info_gain_network)
+
+    train_model_single_layer("GAUSSIAN NB", GaussianNB(), X_info_gain_network, X_info_gain_application, y_info_gain_network,
+                             y_info_gain_application)
+    train_model_single_layer("MULTINOMIAL NB", MultinomialNB(), X_info_gain_network, X_info_gain_application,
+                             y_info_gain_network, y_info_gain_application)
+    train_model_single_layer("COMPLEMENT NB", ComplementNB(), X_info_gain_network, X_info_gain_application, y_info_gain_network,
+                             y_info_gain_application)
+
+    train_model_single_layer("J48", DecisionTreeClassifier(), X_info_gain_network, X_info_gain_application, y_info_gain_network,
+                             y_info_gain_application)
+    train_model_single_layer("SVM", svm.SVC(), X_info_gain_network, X_info_gain_application, y_info_gain_network,
+                             y_info_gain_application)
+    train_model_single_layer("LOGISTIC REGRESSION", LogisticRegression(), X_info_gain_network, X_info_gain_application,
+                             y_info_gain_network, y_info_gain_application)
 
 
 def pca_selection_single_layer():
     print("\n\n\n\n PCA \n\n\n\n")
 
     df_pca = pd.read_csv("../dataset/dataset.csv")
-    df_pca = cleaning_dataframe(df_pca, scaling=False, knn_imputer=False)
-
-    scaler = MinMaxScaler()
-    df_pca = pd.DataFrame(scaler.fit_transform(df_pca), columns=df_pca.columns)
-
-    imputer = KNNImputer(missing_values=np.nan)
-    df_pca = pd.DataFrame(imputer.fit_transform(df_pca), columns=df_pca.columns)
+    df_pca = cleaning_dataframe(df_pca)
 
     df_pca_application = df_pca[
         ['URL_LENGTH', 'NUMBER_SPECIAL_CHARACTERS', 'CHARSET', 'SERVER', 'CONTENT_LENGTH', 'WHOIS_COUNTRY',
@@ -56,3 +88,4 @@ def pca_selection_single_layer():
 if __name__ == "__main__":
     print("\n\n\n SINGLE LAYER \n\n\n")
     pca_selection_single_layer()
+    subset_eval_single_layer()
