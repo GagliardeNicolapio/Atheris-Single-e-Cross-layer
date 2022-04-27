@@ -13,7 +13,6 @@ from imblearn.over_sampling import SMOTE
 
 
 def without_feature_selection():
-
     print("WITHOUT FEATURE SELECTION\n\n\n\n")
 
     df = pd.read_csv("../dataset/dataset.csv")
@@ -36,10 +35,10 @@ def without_feature_selection():
     # split dataset per OR, AND e XOR aggregation
     application_df = X[
         ['URL_LENGTH', 'NUMBER_SPECIAL_CHARACTERS', 'CHARSET', 'SERVER', 'CONTENT_LENGTH', 'WHOIS_COUNTRY',
-         'WHOIS_STATEPRO', 'WHOIS_REGDATE', 'WHOIS_UPDATED_DATE', 'DNS_QUERY_TIMES']]
+         'WHOIS_STATEPRO', 'WHOIS_REGDATE', 'WHOIS_UPDATED_DATE']]
     network_df = X[
         ['TCP_CONVERSATION_EXCHANGE', 'DIST_REMOTE_TCP_PORT', 'REMOTE_IPS', 'APP_BYTES', 'SOURCE_APP_PACKETS',
-         'REMOTE_APP_PACKETS', 'SOURCE_APP_BYTES', 'REMOTE_APP_BYTES', 'APP_PACKETS']]
+         'REMOTE_APP_PACKETS', 'SOURCE_APP_BYTES', 'REMOTE_APP_BYTES', 'APP_PACKETS', 'DNS_QUERY_TIMES']]
 
     train_model_and_or_aggregation("J48", DecisionTreeClassifier(), application_df, network_df, y)
 
@@ -125,10 +124,10 @@ def pca_selection():
 
     df_pca_application = df_pca[
         ['URL_LENGTH', 'NUMBER_SPECIAL_CHARACTERS', 'CHARSET', 'SERVER', 'CONTENT_LENGTH', 'WHOIS_COUNTRY',
-         'WHOIS_STATEPRO', 'WHOIS_REGDATE', 'WHOIS_UPDATED_DATE', 'DNS_QUERY_TIMES']]
+         'WHOIS_STATEPRO', 'WHOIS_REGDATE', 'WHOIS_UPDATED_DATE']]
     df_pca_network = df_pca[
         ['TCP_CONVERSATION_EXCHANGE', 'DIST_REMOTE_TCP_PORT', 'REMOTE_IPS', 'APP_BYTES', 'SOURCE_APP_PACKETS',
-         'REMOTE_APP_PACKETS', 'SOURCE_APP_BYTES', 'REMOTE_APP_BYTES', 'APP_PACKETS']]
+         'REMOTE_APP_PACKETS', 'SOURCE_APP_BYTES', 'REMOTE_APP_BYTES', 'APP_PACKETS', 'DNS_QUERY_TIMES']]
 
     y = df_pca['Type'].astype('int')
 
@@ -151,7 +150,8 @@ def pca_selection():
 
     train_model_and_or_aggregation("J48", DecisionTreeClassifier(), X_pca_application, X_pca_network, y_pca)
     train_model_and_or_aggregation("GAUSSIAN Naive Bayes", GaussianNB(), X_pca_application, X_pca_network, y_pca)
-    train_model_and_or_aggregation("Support Vector Machine", svm.SVC(kernel="poly"), X_pca_application, X_pca_network, y_pca)
+    train_model_and_or_aggregation("Support Vector Machine", svm.SVC(kernel="poly"), X_pca_application, X_pca_network,
+                                   y_pca)
     train_model_and_or_aggregation("Logistic Regression", LogisticRegression(), X_pca_application, X_pca_network, y_pca)
 
 
@@ -161,5 +161,3 @@ if __name__ == "__main__":
     without_feature_selection()
     subset_eval_selection()
     info_gain_selection()
-
-
