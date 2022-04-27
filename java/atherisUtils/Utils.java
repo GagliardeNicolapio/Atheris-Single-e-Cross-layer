@@ -46,7 +46,7 @@ public class Utils {
     public static Instances networkFeatures(String path) throws Exception {
         Instances instancesNetwork = Utils.getInstances(path);
         Remove removeFilter = new Remove();
-        int[] networkFeatures = {9,10,11,12,13,14,15,16,17,19};
+        int[] networkFeatures = {9,10,11,12,13,14,15,16,17,18,19};
         removeFilter.setAttributeIndicesArray(networkFeatures);
         removeFilter.setInvertSelection(true);
         removeFilter.setInputFormat(instancesNetwork);
@@ -56,7 +56,7 @@ public class Utils {
     public static Instances applicationFeatures(String path) throws Exception {
         Instances instancesApplication = Utils.getInstances(path);
         Remove removeFilter = new Remove();
-        int[] applicationFeatures = {0,1,2,3,4,5,6,7,8,18,19};
+        int[] applicationFeatures = {0,1,2,3,4,5,6,7,8,19};
         removeFilter.setAttributeIndicesArray(applicationFeatures);
         removeFilter.setInvertSelection(true);
         removeFilter.setInputFormat(instancesApplication);
