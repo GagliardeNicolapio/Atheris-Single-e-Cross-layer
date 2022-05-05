@@ -1,9 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.datasets import make_classification
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import cross_val_predict
-from sklearn.naive_bayes import GaussianNB
+from imblearn.over_sampling import SMOTE
+from numpy import where
+from collections import Counter
 
 def plot_corr_matrix(df):
     fig, ax = plt.subplots(figsize=(15, 15))  # Sample figsize in inches
@@ -79,3 +82,17 @@ def train_model_single_layer(name_classifier, classifier, X_network, X_applicati
     print_metrics(confusion_matrix(y_network, cross_val_predict(classifier, X_network, y_network, cv=10)))
     print("\n\n" + name_classifier + " APPLICATION")
     print_metrics(confusion_matrix(y_application, cross_val_predict(classifier, X_application, y_application, cv=10)))
+
+
+
+
+
+def plot_sampling(X, y):
+    counter = Counter(y)
+
+    # scatter plot of examples by class label
+    for label, _ in counter.items():
+        row_ix = where(y == label)[0]
+        plt.scatter(X[row_ix, 0], X[row_ix, 1], label=str(label))
+    plt.legend()
+    plt.show()

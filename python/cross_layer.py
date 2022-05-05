@@ -1,5 +1,5 @@
 from data_cleaning import cleaning_dataframe, data_balancing, df_to_arff
-from training import train_model_data_aggregation, train_model_and_or_aggregation
+from training import train_model_data_aggregation, train_model_and_or_aggregation, plot_sampling
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB, MultinomialNB, ComplementNB
 from sklearn import svm
@@ -10,6 +10,8 @@ from sklearn.linear_model import LogisticRegression
 import pandas as pd
 import numpy as np
 from imblearn.over_sampling import SMOTE
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def without_feature_selection():
@@ -114,13 +116,13 @@ def pca_selection():
     print("\n\n\n\n PCA \n\n\n\n")
 
     df_pca = pd.read_csv("../dataset/dataset.csv")
-    df_pca = cleaning_dataframe(df_pca, scaling=False, knn_imputer=False)
+    df_pca = cleaning_dataframe(df_pca)
 
-    scaler = MinMaxScaler()
-    df_pca = pd.DataFrame(scaler.fit_transform(df_pca), columns=df_pca.columns)
+    #scaler = MinMaxScaler()
+    #df_pca = pd.DataFrame(scaler.fit_transform(df_pca), columns=df_pca.columns)
 
-    imputer = KNNImputer(missing_values=np.nan)
-    df_pca = pd.DataFrame(imputer.fit_transform(df_pca), columns=df_pca.columns)
+    #imputer = KNNImputer(missing_values=np.nan)
+    #df_pca = pd.DataFrame(imputer.fit_transform(df_pca), columns=df_pca.columns)
 
     df_pca_application = df_pca[
         ['URL_LENGTH', 'NUMBER_SPECIAL_CHARACTERS', 'CHARSET', 'SERVER', 'CONTENT_LENGTH', 'WHOIS_COUNTRY',
@@ -148,6 +150,10 @@ def pca_selection():
     X_pca_application = X_pca.iloc[:, :7]
     X_pca_network = X_pca.iloc[:, -2:]
 
+    print(X_pca_network.info())
+    print(X_pca_application.info())
+
+
     train_model_and_or_aggregation("J48", DecisionTreeClassifier(), X_pca_application, X_pca_network, y_pca)
     train_model_and_or_aggregation("GAUSSIAN Naive Bayes", GaussianNB(), X_pca_application, X_pca_network, y_pca)
     train_model_and_or_aggregation("Support Vector Machine", svm.SVC(kernel="poly"), X_pca_application, X_pca_network,
@@ -157,7 +163,14 @@ def pca_selection():
 
 if __name__ == "__main__":
     print("\n\n\n CROSS-LAYER \n\n\n")
-    pca_selection()
-    without_feature_selection()
-    subset_eval_selection()
-    info_gain_selection()
+    #pca_selection()
+    #without_feature_selection()
+    #subset_eval_selection()
+    #info_gain_selection()
+
+    df = pd.read_csv("../dataset/dataset.csv")
+    df = cleaning_dataframe(df)
+    X, y = df.loc[:, df.columns != 'Type'].values, df['Type'].values
+    plot_sampling(X, y)
+    X, y = data_balancing(df)
+    plot_sampling(X.values, y.values)
