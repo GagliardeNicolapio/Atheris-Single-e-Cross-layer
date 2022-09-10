@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -7,6 +9,9 @@ from sklearn.model_selection import cross_val_predict
 from imblearn.over_sampling import SMOTE
 from numpy import where
 from collections import Counter
+import pandas as pd
+
+np.set_printoptions(threshold=np.inf)
 
 def plot_corr_matrix(df):
     fig, ax = plt.subplots(figsize=(15, 15))  # Sample figsize in inches
@@ -75,6 +80,7 @@ def train_model_and_or_aggregation(name_classifier, classifier, application_df, 
     print_metrics(confusion_matrix(y, or_agg))
     print(name_classifier + "AND-aggregation" + "-" * 10)
     print_metrics(confusion_matrix(y, and_agg))
+    print_errors(name_classifier, y, or_agg, application_df, network_df, pred_or_agg_application, pred_or_agg_network)
 
 
 def train_model_single_layer(name_classifier, classifier, X_network, X_application, y_network, y_application):
@@ -84,7 +90,19 @@ def train_model_single_layer(name_classifier, classifier, X_network, X_applicati
     print_metrics(confusion_matrix(y_application, cross_val_predict(classifier, X_application, y_application, cv=10)))
 
 
+def print_errors(name_classifier, y, predictions, app_df, net_df, pred_app, pred_net):
 
+    f_errori = open(name_classifier + "errori.txt", "w")
+    f_errori.write(app_df.iloc[0].to_string()+"\n\n")
+    for i in range(len(y)):
+        if y[i] != predictions[i]:
+            print("ERRORE")
+            print("Valore reale: ", y[i], "  Valore predetto: ", predictions[i])
+            print(i)
+            f_errori.write(f"{i},{app_df.iloc[i].tolist(), net_df.iloc[i].tolist(), y[i], pred_app[i], pred_net[i]}\n")
+            f_errori.flush()
+
+    f_errori.close()
 
 
 def plot_sampling(X, y):
