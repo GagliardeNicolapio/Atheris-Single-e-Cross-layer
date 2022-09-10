@@ -14,7 +14,7 @@ Il repository è diviso in tre cartelle:
 - python: contiene l'implementazione degli algoritmi di machine learning e delle tecniche utilizzate per la data cleaning e per l'aggregazione dei dati;
 - dataset: contiene il dataset CSV su cui è stato applicato il processo di data cleaning ([dataset.csv](https://github.com/GagliardeNicolapio/Atheris/blob/master/dataset/dataset.csv)), il file .arff per le API di Weka ([datasetDataCleaningScalingFinal.arff](https://github.com/GagliardeNicolapio/Atheris/blob/master/dataset/datasetDataCleaningScalingFinal.arff)), i file CSV ottenuti da SubsetEvaluation e InformationGain ([datasetSubsetEval.csv](https://github.com/GagliardeNicolapio/Atheris/blob/master/dataset/datasetSubsetEval.csv), [infoGainDataset.csv](https://github.com/GagliardeNicolapio/Atheris/blob/master/dataset/infoGainDataset.csv)), e quattro file CSV per la tecnica di single-layer.
 
-## Enviroment
+## Environment
 - Python version: 3.10.0
 - Java JDK version: Open JDK 17
 - Weka version: 3.8.0
